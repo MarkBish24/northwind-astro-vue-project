@@ -1,14 +1,24 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
+// Basic Info that is involved with base set up
 const employeeId = ref(null);
 const employeeInfo = ref(null);
-const orders = ref(null);
+const orders = ref([]);
 
+// for selecting the Active Order Row
 const selectedOrderProducts = ref([]);
 const selectedOrderId = ref(null);
 const activeOrder = ref(null);
 
+// Caching Products so I don't have to do repeated api calls
+const productsCache = ref({});
+
+// Creating Pagination so that way the table doesn't have to re-update 10,000 lines every click
+const currentPage = ref(1);
+const pageSize = 25;
+
+// Immediately gets employee info and orders at start
 onMounted(async () => {
   employeeId.value = localStorage.getItem("employeeId");
 
@@ -17,6 +27,26 @@ onMounted(async () => {
   console.log(orders.value);
 });
 
+//Start of Pagination
+const totalPages = computed(() => Math.ceil(orders.value.length / pageSize));
+
+//gets the position of the start of the orders (1-25, 26-50 ...)
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
+  return orders.value.slice(start, end);
+});
+
+// Function changes the current page
+function nextPage() {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+}
+
+function prevPage() {
+  if (currentPage.value > 1) currentPage.value--;
+}
+
+//Gets Basic Info
 async function getUserInfo() {
   const res = await fetch(
     `http://localhost:4000/api/v1/get-employee-info/${employeeId.value}`,
@@ -41,26 +71,36 @@ async function getProducts(OrderId) {
   if (activeOrder.value === OrderId) {
     activeOrder.value = null;
     selectedOrderId.value = null;
-    selectedOrderProducts.value = [];
     return;
   }
 
+  // Setting Active Table
   selectedOrderId.value = OrderId;
   activeOrder.value = OrderId;
 
-  const res = await fetch(
-    `http://localhost:4000/api/v1/get-products-by-order/${OrderId}`
-  );
-  const data = await res.json();
-  selectedOrderProducts.value = data;
+  // Use cached data if available
+  if (productsCache.value[OrderId]) {
+    selectedOrderProducts.value = productsCache.value[OrderId];
+  } else {
+    const res = await fetch(
+      `http://localhost:4000/api/v1/get-products-by-order/${OrderId}`
+    );
+    const data = await res.json();
+
+    // Save to cache
+    productsCache.value[OrderId] = data;
+    selectedOrderProducts.value = data;
+  }
 }
 
+// sets back to index.astro
 function handleLogout() {
   window.location.href = "/";
 }
 </script>
 
 <template>
+  <!-- Dashboard -->
   <div class="app-header">
     <div class="app-header-left">
       <h1 class="app-title">Rockliffe Systems</h1>
@@ -78,6 +118,20 @@ function handleLogout() {
     </div>
   </div>
 
+  <!-- Pagination -->
+
+  <div class="pagination" v-if="totalPages > 1">
+    <button @click="prevPage" :class="{ disabled: currentPage === 1 }">
+      ◀
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button @click="nextPage" :class="{ disabled: currentPage === totalPages }">
+      ▶
+    </button>
+  </div>
+
+  <!-- Orders Table -->
+
   <table>
     <thead>
       <tr>
@@ -93,7 +147,7 @@ function handleLogout() {
         <th>Total Quantity</th>
         <th>Total Amount</th>
       </tr>
-      <template v-for="order in orders" :key="order.OrderID">
+      <template v-for="order in paginatedOrders" :key="order.OrderID">
         <!-- Order row -->
         <tr
           :class="{ active: activeOrder === order.OrderID }"
@@ -111,7 +165,7 @@ function handleLogout() {
         <tr
           class="unhighlightable"
           colspan="6"
-          v-if="activeOrder === order.OrderID"
+          v-show="activeOrder === order.OrderID"
         >
           <td colspan="6">
             <table style="width: 100%">
@@ -207,6 +261,32 @@ function handleLogout() {
   transform: scale(0.97);
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem;
+}
+
+.pagination button {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #e0e7ff;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -244,9 +324,5 @@ tr:hover {
 tr.unhighlightable:hover {
   background-color: inherit;
   cursor: default;
-}
-
-tr.order-row:nth-child(even) {
-  background-color: #b4b4b4;
 }
 </style>
