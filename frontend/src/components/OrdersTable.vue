@@ -61,11 +61,19 @@ function handleLogout() {
 </script>
 
 <template>
-  <div>
-    <div class="header">
-      <h1 v-if="employeeInfo">
-        Welcome, {{ employeeInfo.FirstName }} {{ employeeInfo.LastName }}!
-      </h1>
+  <div class="app-header">
+    <div class="app-header-left">
+      <h1 class="app-title">Rockliffe Systems</h1>
+      <span class="app-subtitle" v-if="employeeInfo"> Orders Dashboard </span>
+    </div>
+
+    <div class="app-header-right" v-if="employeeInfo">
+      <span class="app-user">
+        Signed in as
+        <strong
+          >{{ employeeInfo.FirstName }} {{ employeeInfo.LastName }}</strong
+        >
+      </span>
       <button class="logout-btn" @click="handleLogout">Logout</button>
     </div>
   </div>
@@ -73,12 +81,13 @@ function handleLogout() {
   <table>
     <thead>
       <tr>
-        <th colspan="6">Orders</th>
+        <th class="table-title" colspan="6">Orders</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <th colspan="2">Order ID</th>
+        <th></th>
+        <th>Order ID</th>
         <th>Customer ID</th>
         <th>Order Date</th>
         <th>Total Quantity</th>
@@ -90,7 +99,7 @@ function handleLogout() {
           :class="{ active: activeOrder === order.OrderID }"
           @click="getProducts(order.OrderID)"
         >
-          <td>></td>
+          <td>{{ activeOrder === order.OrderID ? "▾" : "▸" }}</td>
           <td>{{ order.OrderID }}</td>
           <td>{{ order.CustomerID }}</td>
           <td>{{ order.OrderDate }}</td>
@@ -108,7 +117,7 @@ function handleLogout() {
             <table style="width: 100%">
               <thead>
                 <tr>
-                  <th colspan="5">Products</th>
+                  <th class="table-title" colspan="5">Products</th>
                 </tr>
                 <tr>
                   <th>Product ID</th>
@@ -139,28 +148,60 @@ function handleLogout() {
 </template>
 
 <style scoped>
-.header {
+.app-header {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border-collapse: collapse;
-  font-family: Arial, sans-serif;
-  padding-bottom: 60px;
+  padding: 1.25rem 3rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
+
+.app-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.app-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.app-user strong {
+  font-weight: 600;
+}
+
 .logout-btn {
-  padding: 10px;
-  background-color: #cacaca;
+  padding: 0.45rem 1.1rem;
+  background-color: #559bff;
   border: none;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
   color: white;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.15s ease;
 }
+
 .logout-btn:hover {
-  background-color: #b0b0b0;
+  background-color: #2563eb;
 }
 .logout-btn:active {
   transform: scale(0.97);
@@ -178,11 +219,17 @@ th {
   background: #f5f5f5;
   padding: 10px;
   font-weight: bold;
-  border: 2px solid #ddd;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: left;
+}
+
+th.table-title {
+  text-align: center;
 }
 td {
   padding: 5px 10px;
   border-bottom: 1px solid #eee;
+  text-align: left;
 }
 
 tr {

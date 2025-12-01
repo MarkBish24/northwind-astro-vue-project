@@ -41,13 +41,20 @@ async function CheckLogin(employeeId, password) {
     <div v-if="isError" class="error-message">
       Invalid Employee ID or Password
     </div>
-    <div class="login-input" :class="{ error: isError }">
-      <label for="employeeId">Employee ID</label>
-      <input id="employeeId" v-model="employeeId" required />
+
+    <div class="logo-container">
+      <img src="/images/rockliffe-logo.svg" alt="Logo" class="logo" />
+      <h1>Rockliffe Systems</h1>
     </div>
-    <div class="login-input" :class="{ error: isError }">
-      <label for="password">Password</label>
-      <input id="password" type="password" v-model="password" required />
+    <div>
+      <div class="login-input" :class="{ error: isError }">
+        <label for="employeeId">Employee ID</label>
+        <input id="employeeId" v-model="employeeId" required />
+      </div>
+      <div class="login-input" :class="{ error: isError }">
+        <label for="password">Password</label>
+        <input id="password" type="password" v-model="password" required />
+      </div>
     </div>
     <button type="submit" class="submit-btn">Login</button>
   </form>
@@ -63,6 +70,7 @@ async function CheckLogin(employeeId, password) {
   background-image: url("/images/Login-Image-Background.png");
   background-size: cover;
   background-position: center;
+  filter: blur(3px);
   z-index: -1;
 }
 .login-form {
@@ -71,9 +79,11 @@ async function CheckLogin(employeeId, password) {
   padding: 30px;
   background-color: rgba(250, 250, 250, 0.85);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 20px;
 }
 .login-form.error {
@@ -84,6 +94,26 @@ async function CheckLogin(employeeId, password) {
   );
 }
 
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.logo {
+  width: 10rem;
+  opacity: 0.85;
+}
+
+.logo-container h1 {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-size: 1.4rem;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
 .error-message {
   color: #ff4d4f;
   text-align: center;
@@ -92,7 +122,7 @@ async function CheckLogin(employeeId, password) {
 .login-input {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.5rem;
 }
 
 .login-input label {
@@ -125,7 +155,7 @@ async function CheckLogin(employeeId, password) {
 }
 
 .submit-btn {
-  padding: 12px 0;
+  padding: 0.75rem 1rem;
   background-color: #559bff;
   border: none;
   border-radius: 8px;
