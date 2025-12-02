@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import OrderDetails from "./OrderDetails.vue";
 
 // Basic Info that is involved with base set up
 const employeeId = ref(null);
@@ -168,32 +169,7 @@ function handleLogout() {
           v-show="activeOrder === order.OrderID"
         >
           <td colspan="6">
-            <table style="width: 100%">
-              <thead>
-                <tr>
-                  <th class="table-title" colspan="5">Products</th>
-                </tr>
-                <tr>
-                  <th>Product ID</th>
-                  <th>Name</th>
-                  <th>Quantity</th>
-                  <th>Unit Price</th>
-                  <th>Line Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="product in selectedOrderProducts"
-                  :key="product.ProductID"
-                >
-                  <td>{{ product.ProductID }}</td>
-                  <td>{{ product.ProductName }}</td>
-                  <td>{{ product.Quantity }}</td>
-                  <td>${{ product.UnitPrice }}</td>
-                  <td>${{ product.LineTotal }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <OrderDetails :products="selectedOrderProducts" />
           </td>
         </tr>
       </template>
@@ -201,7 +177,7 @@ function handleLogout() {
   </table>
 </template>
 
-<style scoped>
+<style>
 .app-header {
   display: flex;
   justify-content: space-between;
